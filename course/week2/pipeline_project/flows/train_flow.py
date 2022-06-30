@@ -1,5 +1,5 @@
 """
-Flow #1: This flow will train a small (linear) neural network 
+Flow #1: This flow will train a small (linear) neural network
 on the MNIST dataset to performance classification.
 """
 
@@ -31,7 +31,7 @@ class DigitClassifierFlow(FlowSpec):
   ---------
   config (str, default: ./config.py): path to a configuration file
   """
-  config_path = Parameter('config', 
+  config_path = Parameter('config',
     help = 'path to config file', default='./configs/train_flow.json')
 
   @step
@@ -44,13 +44,13 @@ class DigitClassifierFlow(FlowSpec):
     torch.manual_seed(42)
 
     # uncomment me when logging
-    # wandb.init()  # initialize wandb module
+    wandb.init()  # initialize wandb module
 
     self.next(self.init_system)
 
   @step
   def init_system(self):
-    r"""Instantiates a data module, pytorch lightning module, 
+    r"""Instantiates a data module, pytorch lightning module,
     and lightning trainer instance.
     """
     # configuration files contain all hyperparameters
@@ -72,21 +72,21 @@ class DigitClassifierFlow(FlowSpec):
     )
 
     # Logging is an important part of training a model. It helps us understand
-    # what the model is doing and look out for early signs that something might 
-    # be going wrong. We will be using 'Weights and Biases', a relatively new 
-    # tool that makes logging in the cloud easy. 
-    # 
-    # wandb_logger = WandbLogger(
-    #   project = config.wandb.project, 
-    #   offline = False,
-    #   entity = config.wandb.entity, 
-    #   name = 'mnist', 
-    #   save_dir = 'logs/wandb',
-    #   config = config)
+    # what the model is doing and look out for early signs that something might
+    # be going wrong. We will be using 'Weights and Biases', a relatively new
+    # tool that makes logging in the cloud easy.
+    #
+    wandb_logger = WandbLogger(
+      project = config.wandb.project,
+      offline = False,
+      entity = config.wandb.entity,
+      name = 'mnist',
+      save_dir = 'logs/wandb',
+      config = config)
 
     trainer = Trainer(
       max_epochs = config.system.optimizer.max_epochs,
-      # logger = wandb_logger,
+      logger = wandb_logger,
       callbacks = [checkpoint_callback])
 
     # when we save these objects to a `step`, they will be available
@@ -103,10 +103,12 @@ class DigitClassifierFlow(FlowSpec):
 
     # Call `fit` on the trainer with `system` and `dm`.
     # Our solution is one line.
+    wandb.init()
+    # self.trainer.logger = self.create_wandb_logger()
     self.trainer.fit(self.system, self.dm)
 
     # uncomment me when logging
-    # wandb.finish()  # close wandb run
+    wandb.finish()  # close wandb run
 
     self.next(self.offline_test)
 
@@ -116,12 +118,13 @@ class DigitClassifierFlow(FlowSpec):
 
     # Load the best checkpoint and compute results using `self.trainer.test`
     self.trainer.test(self.system, self.dm, ckpt_path = 'best')
+    # self.trainer.logger = self.create_wandb_logger()
     results = self.system.test_results
 
     # print results to command line
     pprint(results)
 
-    log_file = join(Path(__file__).resolve().parent.parent, 
+    log_file = join(Path(__file__).resolve().parent.parent,
       f'logs/train_flow', 'offline-test-results.json')
 
     os.makedirs(os.path.dirname(log_file), exist_ok = True)
@@ -134,6 +137,17 @@ class DigitClassifierFlow(FlowSpec):
     """End node!"""
     print('done! great work!')
 
+
+
+  def create_wandb_logger(self):
+    return WandbLogger(
+      project = self.config.wandb.project,
+      offline = False,
+      entity = self.config.wandb.entity,
+      name = 'mnist',
+      save_dir = 'logs/wandb',
+      config = self.config
+    )
 
 if __name__ == "__main__":
   """
@@ -150,7 +164,7 @@ if __name__ == "__main__":
   the flow at the point of failure:
 
     `python train_flow.py resume`
-  
+
   You can specify a run id as well.
   """
   flow = DigitClassifierFlow()

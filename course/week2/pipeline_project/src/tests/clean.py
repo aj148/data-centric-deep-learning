@@ -1,9 +1,9 @@
 """
-Utilities for processing photos of handwritten digits from 
-raw photos to a clean version that neural networks expect. 
+Utilities for processing photos of handwritten digits from
+raw photos to a clean version that neural networks expect.
 
 NOTE: You will not need to edit anything in this file although
-we encourage you to understand the material here. 
+we encourage you to understand the material here.
 """
 
 import os
@@ -14,7 +14,7 @@ from scipy import ndimage
 
 
 def get_best_shift(img):
-  cy, cx = ndimage.measurements.center_of_mass(img)
+  cy, cx = ndimage.center_of_mass(img)
 
   rows, cols = img.shape
   shiftx = np.round(cols / 2.0 - cx).astype(int)
@@ -32,19 +32,19 @@ def shift(img, sx, sy):
 
 def clean_photo_image(path, out_dir):
   """The photo we have taken by hand is quite different than a MNIST image.
-  We will need to process them! 
+  We will need to process them!
 
   If you are curious, we perform the following operations:
 
   1. The photo is reshaped to 28 x 28 in grayscale.
   2. The photo is thresholded to increase contrast between black and white portions.
-  3. The photo is cropped to remove any rows or columns of pixels that are 
+  3. The photo is cropped to remove any rows or columns of pixels that are
     completely black.
-  4. The crop is reshaped to 20 x 20 pixels and cented in a 28 x 28 pixe 
-    box by center of mass. 
+  4. The crop is reshaped to 20 x 20 pixels and cented in a 28 x 28 pixe
+    box by center of mass.
 
-  Steps 3-4 are important for normalizing the size of the digit; otherwise you 
-  might show digits of different sizes to the neural network. This sort of 
+  Steps 3-4 are important for normalizing the size of the digit; otherwise you
+  might show digits of different sizes to the neural network. This sort of
   standardization is very important for good performance.
 
   Credit: https://opensourc.es/blog/tensorflow-mnist for this function.
@@ -54,10 +54,10 @@ def clean_photo_image(path, out_dir):
   # rescale it
   gray = cv2.resize(255 - gray, (28, 28))
   # better black and white version
-  (thresh, gray) = cv2.threshold(gray, 128, 255, 
+  (thresh, gray) = cv2.threshold(gray, 128, 255,
     cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-  
-  # remove all rows and columns at the sides of images that are 
+
+  # remove all rows and columns at the sides of images that are
   # completely black.
   while np.sum(gray[0]) == 0:
     gray = gray[1:]
@@ -74,7 +74,7 @@ def clean_photo_image(path, out_dir):
   rows,cols = gray.shape
 
   # MNIST images are normalized to fit in a 20x20 pixel box and
-  # are centered in a 28x28 image using a center of mass. It is 
+  # are centered in a 28x28 image using a center of mass. It is
   # important we do this same thing!
   if rows > cols:
     factor = 20.0 / rows
@@ -107,6 +107,7 @@ def clean_photo_image(path, out_dir):
   # save to folder
   name = os.path.basename(path)
   out_file = os.path.join(out_dir, name)
+  print(out_file)
   cv2.imwrite(out_file, gray)
 
 
