@@ -13,5 +13,9 @@
       "num_workers": 4
     },
     "save_dir": "./artifacts/ckpts/dro"
+  },
+  "wandb": {
+    "project": "dro_flow",
+    "entity": "arihantjain"
   }
 }

@@ -8,7 +8,7 @@ from src.paths import DATA_DIR
 
 
 class ProductReviewEmbeddings(Dataset):
-  r"""RoBERTa embeddings of customer reviews. Embeddings are precomputed 
+  r"""RoBERTa embeddings of customer reviews. Embeddings are precomputed
   and saved to disk. This class does not compute embeddings live.
 
   Argument
@@ -16,7 +16,7 @@ class ProductReviewEmbeddings(Dataset):
   lang (str): the language
     Options - en | es | mix
   split (str): the dataset portion
-    Options - train | dev | test | * 
+    Options - train | dev | test | *
   """
   def __init__(self, lang = 'en', split = 'train', weights = None):
     super().__init__()
@@ -33,24 +33,28 @@ class ProductReviewEmbeddings(Dataset):
     vocab = defaultdict(lambda: 0)
     # ===============================
     # FILL ME OUT
-    # 
-    # Compute a map between word to count: number of times the 
+    #
+    # Compute a map between word to count: number of times the
     # word shows up in the dataset.
-    # 
+    #
     # Pseudocode:
     # --
     # loop through `self.data.review`
     #   split review into tokens
     #   update vocab with each token
-    # 
+    #
     # Type:
     # --
     # vocab: dict[str, int]
-    # 
+    #
     # Notes:
     # --
     # Convert tokens to lowercase when updating vocab.
     # ===============================
+    for i in self.data.review:
+      tokens = i.lower().split()
+      for token in tokens:
+        vocab[token] +=1
     return dict(vocab)
 
   def get_labels(self):
@@ -76,13 +80,13 @@ class ProductReviewEmbeddings(Dataset):
 
 
 class ProductReviewStream(Dataset):
-  r"""Simulates a stream of customer reviews. Embeddings are precomputed 
+  r"""Simulates a stream of customer reviews. Embeddings are precomputed
   and saved to disk. This class does not compute embeddings live. No labels
   will be provided here.
 
   Argument:
   --------
-  index (int): stream index 
+  index (int): stream index
     Options - 1 to 9
   """
   def __init__(self, index):
@@ -96,20 +100,25 @@ class ProductReviewStream(Dataset):
     vocab = defaultdict(lambda: 0)
     # ===============================
     # FILL ME OUT
-    # 
-    # Copy your implementation of `get_vocab` from 
+    #
+    # Copy your implementation of `get_vocab` from
     # the `ProductReviewEmbeddings` class here.
-    # 
+    #
     # Pseudocode:
     # --
     # loop through `self.data.review`
     #   split review into tokens
     #   update vocab with each token
-    # 
+    #
     # Type:
     # --
     # vocab: dict[str, int]
     # ===============================
+    for i in self.data.review:
+      tokens = i.lower().split()
+      for token in tokens:
+        vocab[token] +=1
+
     return dict(vocab)
 
   def __getitem__(self, index):
